@@ -2,7 +2,7 @@
 
 Reimplementação minimalista do utilitário `md5sum` do Linux, escrita em C
 puro para Windows usando a API **CNG** (`bcrypt.dll`). Sem dependências
-externas — só o que já vem no SO desde o Windows Vista.
+externas — só o que já vem no SO desde o Windows 8 / Server 2012.
 
 ## Funcionalidades
 
@@ -13,10 +13,12 @@ externas — só o que já vem no SO desde o Windows Vista.
 - Leitura em chunks de 64 KB — funciona com arquivos grandes sem
   carregar tudo na memória.
 - Exit code `1` se qualquer arquivo falhar (idem `md5sum` do Linux).
+- Suporte a caminhos Unicode (UTF-16 nativo via `wmain` + `_wfopen`);
+  nomes de arquivo são impressos em UTF-8.
 
 ## Requisitos
 
-- Windows Vista ou superior.
+- Windows 8 / Windows Server 2012 ou superior.
 - [MinGW-w64](https://www.mingw-w64.org/) (`gcc`) + `mingw32-make`
   (ou `make` do MSYS2).
 
@@ -40,7 +42,7 @@ ou simplesmente `make` se estiver no shell do MSYS2. Isso gera
 Para compilar manualmente sem o Makefile:
 
 ```sh
-gcc -O2 -Wall -Wextra -std=c11 -o md5sum.exe md5sum.c -lbcrypt
+gcc -O2 -Wall -Wextra -std=c11 -municode -o md5sum.exe md5sum.c -municode -lbcrypt
 ```
 
 Para limpar:

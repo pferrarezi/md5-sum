@@ -1,10 +1,10 @@
 # Makefile for md5sum (Windows, CNG / bcrypt)
 # Works with MinGW-w64 (gcc) out of the box.
-# For MSVC use:  nmake /f Makefile.msvc   (or just: cl md5sum.c bcrypt.lib)
+# For MSVC, just run:  cl md5sum.c bcrypt.lib
 
 CC      = gcc
-CFLAGS  = -O2 -Wall -Wextra -std=c11
-LDLIBS  = -lbcrypt
+CFLAGS  = -O2 -Wall -Wextra -std=c11 -municode
+LDLIBS  = -municode -lbcrypt
 TARGET  = md5sum.exe
 SRC     = md5sum.c
 
