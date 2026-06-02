@@ -1,8 +1,8 @@
-# md5sum (Windows / CNG)
+# md5sum (Zig)
 
-Reimplementação minimalista do utilitário `md5sum` do Linux, escrita em C
-puro para Windows usando a API **CNG** (`bcrypt.dll`). Sem dependências
-externas — só o que já vem no SO desde o Windows 8 / Server 2012.
+Reimplementação minimalista do utilitário `md5sum` do Linux, escrita em
+**Zig**. Usa o MD5 da biblioteca padrão (`std.crypto.hash.Md5`) — sem
+dependências externas e multiplataforma (Windows, Linux, macOS).
 
 ## Funcionalidades
 
@@ -13,56 +13,47 @@ externas — só o que já vem no SO desde o Windows 8 / Server 2012.
 - Leitura em chunks de 64 KB — funciona com arquivos grandes sem
   carregar tudo na memória.
 - Exit code `1` se qualquer arquivo falhar (idem `md5sum` do Linux).
-- Suporte a caminhos Unicode (UTF-16 nativo via `wmain` + `_wfopen`);
-  nomes de arquivo são impressos em UTF-8.
+- Suporte a caminhos Unicode (UTF-16 nativo no Windows via
+  `std.process.argsAlloc`); nomes de arquivo são impressos em UTF-8.
 
 ## Requisitos
 
-- Windows 8 / Windows Server 2012 ou superior.
-- [MinGW-w64](https://www.mingw-w64.org/) (`gcc`) + `mingw32-make`
-  (ou `make` do MSYS2).
-
-No MSYS2 basta:
-
-```sh
-pacman -S mingw-w64-x86_64-gcc make
-```
+- [Zig](https://ziglang.org/) 0.15 ou superior.
 
 ## Build
 
 A partir da raiz do projeto:
 
 ```sh
-mingw32-make
+zig build
 ```
 
-ou simplesmente `make` se estiver no shell do MSYS2. Isso gera
-`md5sum.exe` no diretório atual.
+Isso gera `zig-out/bin/md5sum` (`md5sum.exe` no Windows).
 
-Para compilar manualmente sem o Makefile:
+Para uma build otimizada de release:
 
 ```sh
-gcc -O2 -Wall -Wextra -std=c11 -municode -o md5sum.exe md5sum.c -municode -lbcrypt
+zig build -Doptimize=ReleaseFast
 ```
 
-Para limpar:
+Para rodar direto pelo build system:
 
 ```sh
-mingw32-make clean
+zig build run -- arquivo.bin
 ```
 
 ## Uso
 
 ```sh
 # Um arquivo
-md5sum.exe arquivo.bin
+md5sum arquivo.bin
 
 # Vários arquivos
-md5sum.exe a.txt b.txt c.txt
+md5sum a.txt b.txt c.txt
 
 # Via stdin
-type arquivo.bin | md5sum.exe
-md5sum.exe - < arquivo.bin
+type arquivo.bin | md5sum
+md5sum - < arquivo.bin
 ```
 
 Exemplo de saída:
@@ -78,9 +69,9 @@ Se um arquivo não existir ou não puder ser aberto, a mensagem vai para
 `stderr` e o programa continua com os demais:
 
 ```
-> md5sum.exe existe.txt naoexiste.txt
+> md5sum existe.txt naoexiste.txt
 d41d8cd98f00b204e9800998ecf8427e  existe.txt
-md5sum: naoexiste.txt: No such file or directory
+md5sum: naoexiste.txt: FileNotFound
 ```
 
 O exit code final será `1` se ao menos um arquivo falhou.
@@ -90,6 +81,5 @@ O exit code final será `1` se ao menos um arquivo falhou.
 MD5 está criptograficamente quebrado (colisões práticas desde 2004). Use
 apenas para verificação de integridade não-adversarial (checksums de
 download, deduplicação, chaves de cache). Para qualquer uso de
-segurança, prefira SHA-256 — basta trocar `BCRYPT_MD5_ALGORITHM` por
-`BCRYPT_SHA256_ALGORITHM` e ajustar o tamanho do buffer de digest para
-32 bytes.
+segurança, prefira SHA-256 — basta trocar `std.crypto.hash.Md5` por
+`std.crypto.hash.sha2.Sha256`.
