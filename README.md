@@ -36,6 +36,12 @@ Para uma build otimizada de release:
 zig build -Doptimize=ReleaseFast
 ```
 
+Para gerar explicitamente um executável Windows x86_64:
+
+```sh
+zig build windows -Doptimize=ReleaseFast
+```
+
 Para rodar direto pelo build system:
 
 ```sh
